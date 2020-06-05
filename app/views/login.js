@@ -196,7 +196,8 @@ module.exports = class Login extends Component {
     let self = this
     const dropdowns = ['audio', 'video'].map((kind) => html`
     <div class="flex items-center ba">
-      <i class="w1 fas mh2 f3 ${kind==='video'?'fa-video' :'fa-microphone'}"></i>
+      <!-- <i class="w1 fas mh2 f3 ${kind==='video'?'fa-video' :'fa-microphone'}"></i> -->
+    <i class="material-icons w1 mh2 f3">${kind==='video'?'videocam' :'mic'}</i>
     <select name=${kind} class="w-100 pa2 white ttu pointer bn" style="background:none;/*font-size:3vw*/" onchange=${(e)=>{
       this.selectedDevices[kind] = this.devices[kind].filter((device) => device.deviceId === e.target.value)[0]
       if(this.selectedDevices[kind].deviceId === 'false') {
@@ -237,7 +238,8 @@ module.exports = class Login extends Component {
             ${dropdowns[1]}
             ${dropdowns[0]}
             <div class="ba flex items-center">
-              <i class="w1 fas mh2 f3 fa-user"></i>
+              <!-- <i class="w1 fas mh2 f3 fa-user"></i> -->
+              <i class="w1 material-icons mh2 f3">person</i>
               <input type="text" placeholder="name" value=${this.nickname} class="ml1 pa2 bn w-100 white" style="background:none" onkeyup=${(e) => this.nickname = e.target.value} />
             </div>
             <div class="flex mt5">

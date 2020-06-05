@@ -1,9 +1,18 @@
 const html = require('choo/html')
+//
+// const menuIcon = ({ title, onclick, icon, selected = false, info }) => html`
+// <div class="relative pointer pa3 ${selected?"bg-mid-gray" : ""}" style="flex:0" title=${title} onclick= ${onclick}>
+// <i class="fas ${icon} dim pointer" style="display:block;" title=${title}
+//  ></i>
+// ${info?html`<div class="absolute ttu right-0 top-0 b pa2">${info}</div>` : '' }
+// </div>
+// `
 
-const menuIcon = ({ title, onclick, icon, selected = false, info }) => html`
+// material icons
+const menuIcon = ({ title, onclick, icon="", iconClass="", selected = false, info }) => html`
 <div class="relative pointer pa3 ${selected?"bg-mid-gray" : ""}" style="flex:0" title=${title} onclick= ${onclick}>
-<i class="fas ${icon} dim pointer" style="display:block;" title=${title}
- ></i>
+<i class="material-icons dim pointer ${iconClass} w1" title=${title}
+ >${icon}</i>
 ${info?html`<div class="absolute ttu right-0 top-0 b pa2">${info}</div>` : '' }
 </div>
 `
@@ -35,24 +44,30 @@ module.exports = (state, emit) => {
     <div class="flex flex-column justify-between flex-wrap-reverse" style="pointer-events:all;color:${state.style.colors.text0}">
       <div class="flex flex-column-ns flex-row justify-center">
         ${state.multiPeer.defaultStream !== null ? html`${menuItem({
-            icon:  state.multiPeer.user.streamInfo[state.multiPeer.defaultStream.id].isVideoMuted ?'fa-video-slash dark-pink':'fa-video',
+            icon: state.multiPeer.user.streamInfo[state.multiPeer.defaultStream.id].isVideoMuted ?'videocam_off':'videocam',
+            iconClass: state.multiPeer.user.streamInfo[state.multiPeer.defaultStream.id].isVideoMuted ?'dark-pink':'',
+            // icon:  state.multiPeer.user.streamInfo[state.multiPeer.defaultStream.id].isVideoMuted ?'fa-video-slash dark-pink':'fa-video',
             title: "Mute your video",
             onclick: () => emit('user:toggleVideoMute')
           })}
           ${menuItem({
-            icon:  state.multiPeer.user.streamInfo[state.multiPeer.defaultStream.id].isAudioMuted ?'fa-microphone-slash dark-pink':'fa-microphone',
+            icon: state.multiPeer.user.streamInfo[state.multiPeer.defaultStream.id].isAudioMuted ?'mic_off':'mic',
+            iconClass: state.multiPeer.user.streamInfo[state.multiPeer.defaultStream.id].isAudioMuted ?'dark-pink':'',
+            // icon:  state.multiPeer.user.streamInfo[state.multiPeer.defaultStream.id].isAudioMuted ?'fa-microphone-slash dark-pink':'fa-microphone',
             title: "Mute your microphone",
             onclick: () => emit('user:toggleAudioMute')
           })}` : ''}
 
         ${menuItem({
-          icon: 'fa-desktop',
+          // icon: 'fa-desktop',
+          icon: 'add_to_queue',
           title: "Add screen share",
           onclick: () => emit('user:shareScreen'),
           // info: '+'
         })}
         ${menuItem({
-          icon: 'fa-plus-circle',
+          // icon: 'fa-plus-circle',
+          icon: 'add_circle',
           title: "Add media stream",
           onclick: () =>  emit('layout:toggleMenuItem', 'addMedia', 'panels'),
           advanced: true,
@@ -60,7 +75,8 @@ module.exports = (state, emit) => {
         })}
 
         ${menuItem({
-          icon: 'fa-phone-slash',
+          // icon: 'fa-phone-slash',
+          icon: 'phone_disabled',
           title: "Leave call",
           // info: 'x',
           onclick: () => emit('user:endCall')
@@ -68,7 +84,8 @@ module.exports = (state, emit) => {
         </div>
         <div class="flex flex-column-ns flex-row justify-center">
           ${['a', 'b', 'c', 'd'].splice(0, state.layout.settings.numberOfSwitchers).map((switcher) => menuItem({
-              icon: 'fa-desktop',
+              // icon: 'fa-desktop',
+              icon: 'desktop_windows',
               title: `Open switcher ${switcher}`,
               onclick: () => emit('layout:toggleMenuItem', switcher, 'switchers'),
               advanced: true,
@@ -78,7 +95,8 @@ module.exports = (state, emit) => {
             })
           )}
           ${menuItem({
-            icon: 'fa-cog',
+            // icon: 'fa-cog',
+            icon: 'settings',
             title: "Settings",
             selected: state.layout.panels.settings,
             // info: 'x',
