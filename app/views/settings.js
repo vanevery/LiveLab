@@ -48,6 +48,16 @@ module.exports = (state, emit) => {
     label: num,
     value: num
   }))
+
+  const videobropts = ['none', 100, 300, 500, 1000, 1500, 2000, 3000].map(num => ({
+    label: num,
+    value: num
+  }))
+  const audiobropts = ['none', 20, 50, 100, 150, 300, 1000].map(num => ({
+    label: num,
+    value: num
+  }))
+
   return html `<div class="mw6 ttl">
       ${dropdown({
         label: 'Number of output switchers',
@@ -63,5 +73,23 @@ module.exports = (state, emit) => {
       }, 'numberOfSwitchers')}
       ${toggle('Stretch to fit', 'stretchToFit')}
       ${toggle('Column layout', 'columnLayout')}
+      ${dropdown({
+        label: 'Video Bitrate',
+        value: state.multiPeer.videoBitrate,
+        opts: videobropts,
+        onChange: e => {
+          emit('videobitrate', e.target.value);
+          //console.log("After// e value: " + e.target.value + " #ofswtichers: " + state.layout.settings.numberOfSwitchers)
+        }
+      }, 'videoBitrate')}
+      ${dropdown({
+        label: 'Audio Bitrate',
+        value: state.multiPeer.audioBitrate,
+        opts: audiobropts,
+        onChange: e => {
+          emit('audiobitrate', e.target.value);
+          //console.log("After// e value: " + e.target.value + " #ofswtichers: " + state.layout.settings.numberOfSwitchers)
+        }
+      }, 'audioBitrate')}
   </div>`
 }

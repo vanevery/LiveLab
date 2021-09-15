@@ -25,6 +25,18 @@ module.exports = (state, emitter) => {
   state.multiPeer = new MultiPeer({}, emitter)
   window.audioCtx = new AudioContext()
 
+  emitter.on('audiobitrate', (audiobitrate) => {
+    if (audiobitrate == 'none') 
+      audiobitrate = null;
+    state.multiPeer.audioBitrate = audiobitrate
+  })
+
+  emitter.on('videobitrate', (videobitrate) => {
+    if (videobitrate == 'none') 
+      videobitrate = null;
+    state.multiPeer.videoBitrate = videobitrate
+  })
+
   emitter.on('user:join', function ({
     room,
     server,

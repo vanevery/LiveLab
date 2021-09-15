@@ -4,6 +4,7 @@ var io = require('socket.io-client')
 var Peer = require('./Peer.js')
 var EventEmitter = require('events').EventEmitter
 const nanoid = require('nanoid').nanoid
+const { timeStamp } = require('console')
 
 class MultiPeer extends EventEmitter {
   constructor () {
@@ -25,9 +26,13 @@ class MultiPeer extends EventEmitter {
       userData = {},
       peerOptions = {},
       sendOnly = false,
-      stream
+      stream, 
+      videoBitrate = null,
+      audioBitrate = null
     }
   ) {
+    this.videoBitrate = videoBitrate
+    this.audioBitrate = audioBitrate
     this.signaller = io(server)
     this.room = room
     this.user = Object.assign(
@@ -195,6 +200,21 @@ class MultiPeer extends EventEmitter {
     // if there is currently no peer object for a peer id, that peer is initiating a new connection.
     if (!this.peers[data.id]) {
       var options = Object.assign({ stream: this.stream }, this._peerOptions)
+
+      if (this.videoBitrate != null || this.audioBitrate != null) {
+        options.sdpTransform = (sdp) => {
+          let newSDP = sdp;
+          if (this.videoBitrate) {
+              newSDP = this.setMediaBitrate(sdp, this.videoBitrate, 'video');
+          }
+          if (this.audioBitrate) {
+              newSDP = this.setMediaBitrate(newSDP, this.audioBitrate, 'audio');
+          }
+          console.log(newSDP);
+          return newSDP;   
+        }      
+      }
+
       this.peers[data.id] = new Peer({
         peerOptions: options,
         id: data.id,
@@ -234,6 +254,21 @@ class MultiPeer extends EventEmitter {
         } else {
           var newOptions = { initiator: true }
           var options = Object.assign(newOptions, this._peerOptions)
+
+          if (this.videoBitrate != null || this.audioBitrate != null) {
+            options.sdpTransform = (sdp) => {
+              let newSDP = sdp;
+              if (videoBitrate) {
+                  newSDP = this.setMediaBitrate(sdp, videoBitrate, 'video');
+              }
+              if (audioBitrate) {
+                  newSDP = this.setMediaBitrate(newSDP, audioBitrate, 'audio');
+              }
+              console.log(newSDP);
+              return newSDP;   
+            }      
+          }
+
           this.peers[id] = new Peer({
             peerOptions: options,
             id: id,
@@ -252,6 +287,45 @@ class MultiPeer extends EventEmitter {
       this.peers[id]._peer.send(data)
     })
   }
+
+  // Borrowed from after https://webrtchacks.com/limit-webrtc-bandwidth-sdp/
+  setMediaBitrate(sdp, bitrate, mediaType = 'video') {
+    var lines = sdp.split("\n");
+    var line = -1;
+    for (var i = 0; i < lines.length; i++) {
+      if (lines[i].indexOf("m="+mediaType) === 0) {
+        line = i;
+        break;
+      }
+    }
+    if (line === -1) {
+      console.debug("Could not find the m line for", mediaType);
+      return sdp;
+    }
+    console.debug("Found the m line for", mediaType, "at line", line);
+  
+    // Pass the m line
+    line++;
+  
+    // Skip i and c lines
+    while(lines[line].indexOf("i=") === 0 || lines[line].indexOf("c=") === 0) {
+      line++;
+    }
+  
+    // If we're on a b line, replace it
+    if (lines[line].indexOf("b") === 0) {
+      //console.debug("Replaced b line at line", line);
+      lines[line] = "b=AS:"+bitrate;
+      return lines.join("\n");
+    }
+    
+    // Add a new b line
+    //console.debug("Adding new b line before line", line);
+    var newLines = lines.slice(0, line)
+    newLines.push("b=AS:"+bitrate)
+    newLines = newLines.concat(lines.slice(line, lines.length))
+    return newLines.join("\n")        
+  }  
 }
 
 function getSettingsFromStream (stream) {
